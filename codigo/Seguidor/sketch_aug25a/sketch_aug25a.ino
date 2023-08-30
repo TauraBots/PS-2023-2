@@ -3,11 +3,24 @@
 enum Estado {
   SEGUIR_LINHA,
   GIRAR_DIREITA,
+  GIRAR_DIREITA_POUCO,
+  GIRAR_ESQUERDA_POUCO,
   GIRAR_ESQUERDA,
   PARAR
 };
 
-const int threshold = 1500;
+
+Estado estadoAtual = SEGUIR_LINHA;
+const int sensorPins[] = { 33, 25, 35, 32}; //(33) e 25 DD | 35 e (32) EE
+const int DirecaoDireito[] = { 15, 4 };
+const int DirecaoEsquerdo[] = { 16, 5 };
+const int ControleDireito = 2;
+const int ControleEsquerdo = 17;
+const int numSensors = sizeof(sensorPins) / sizeof(sensorPins[0]);
+
+
+const int threshold = 500;
+const int motorSpeed = 80;
 
 
 void controlarMotores(int velocidadeDireita, int velocidadeEsquerda) {
@@ -31,19 +44,13 @@ void controlarMotores(int velocidadeDireita, int velocidadeEsquerda) {
   }
 }
 
-Estado estadoAtual = SEGUIR_LINHA;
-const int sensorPins[] = { 13, 14, 25, 33};
-const int DirecaoDireito[] = { 22, 23};
-const int DirecaoEsquerdo[] = {19 , 21};
-const int ControleDireiro = 5; 
-const int ControleEsquerdo = 16;                                                                                                 
-const int numSensors = sizeof(sensorPins) / sizeof(sensorPins[0]);
-void setup(){
+
+void setup() {
   Serial.begin(9600);
-  for (int i = 0; i< numSensors; i++){
+  for (int i = 0; i < numSensors; i++) {
     pinMode(sensorPins[i], INPUT);
   }
-  for (int i = 0; i<2; i++){
+  for (int i = 0; i < 2; i++) {
     pinMode(DirecaoDireito[i], OUTPUT);
     pinMode(DirecaoEsquerdo[i], OUTPUT);
   }
@@ -51,51 +58,34 @@ void setup(){
   pinMode(ControleEsquerdo, OUTPUT);
 }
 
-void loop(){
+void loop() {
+  // bool new = false;
+  int readed[4] = {0, 0, 0, 0};
   int sensorValues[numSensors];
 
-  for(int i=0; i < numSensors; i++){
+  for (int i = 0; i < numSensors; i++) {
+    sensorValues[i] = analogRead(sensorPins[i]);
+  }
+  // if (readed != sensorValues)
+  
+  if((sensorValues[1] > threshold) && (sensorValues[2] > threshold) && sensorValues[3] > threshold){
+    controlarMotores(80, 80);
+    Serial.println("Frente");
 
   }
-
-switch (estadoAtual){
-    case SEGUIR_LINHA:
-      if (sensorValues[0] > threshold && sensorValues[1] > threshold &&
-          sensorValues[2] > threshold && sensorValues[3] > threshold) {
-        // Todos os sensores acima do limiar, seguir a linha
-        controlarMotores(motorSpeed, motorSpeed);
-      } else if (sensorValues[3] > threshold) {
-        // Sensor direito ativado, transicionar para o estado de girar à esquerda
-        estadoAtual = GIRAR_ESQUERDA;
-      } else if (sensorValues[0] > threshold) {
-        // Sensor esquerdo ativado, transicionar para o estado de girar à direita
-        estadoAtual = GIRAR_DIREITA;
-      }
-      break;
-
-    case GIRAR_DIREITA:
-      // Girar à direita (correção)
-      controlarMotores(motorSpeed, -motorSpeed); // Gira para a direita
-      delay(500); // Tempo de giro
-      estadoAtual = SEGUIR_LINHA; // Volta a seguir a linha
-      break;
-
-    case GIRAR_ESQUERDA:
-      // Girar à esquerda (correção)
-      controlarMotores(-motorSpeed, motorSpeed); // Gira para a esquerda
-      delay(500); // Tempo de giro
-      estadoAtual = SEGUIR_LINHA; // Volta a seguir a linha
-      break;
-
-
-    case PARAR:
-      controlarMotores(0, 0);
-      if (sensorValues[0] > threshold || sensorValues[1] > threshold ||
-          sensorValues[2] > threshold || sensorValues[3] > threshold) {
-        // Pelo menos um sensor acima do limiar, transicionar de volta para seguir a linha
-        estadoAtual = SEGUIR_LINHA;
-      }
-      break;
-
-}
+ if((sensorValues[1] < threshold) && (sensorValues[2] > threshold) && (sensorValues[3] > threshold)){
+    controlarMotores(-70, 70);
+    Serial.println("Direita pouco");
+    // delay(100); //Direita
+  }
+   if((sensorValues[1] > threshold) && (sensorValues[2] < threshold) && (sensorValues[3] > threshold)){
+    controlarMotores(70, -70);
+    Serial.println("Esquerda pouco");
+    // delay(100); //Esquerda
+  }
+  if((sensorValues[3] < threshold) && (sensorValues[1] > threshold) && (sensorValues[2] > threshold)){
+    controlarMotores(90, -90);
+    Serial.println("Esquerda Muito");
+  }
+  
 }
