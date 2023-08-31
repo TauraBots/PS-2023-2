@@ -20,7 +20,8 @@ const int numSensors = sizeof(sensorPins) / sizeof(sensorPins[0]);
 
 
 const int threshold = 500;
-const int motorSpeed = 80;
+const int motorSpeed = 90;
+const int giro = 90;
 
 
 void controlarMotores(int velocidadeDireita, int velocidadeEsquerda) {
@@ -28,16 +29,16 @@ void controlarMotores(int velocidadeDireita, int velocidadeEsquerda) {
   analogWrite(ControleEsquerdo, velocidadeEsquerda);
 
   if (velocidadeDireita > 0) {
-    digitalWrite(DirecaoDireito[0], HIGH);
-    digitalWrite(DirecaoDireito[1], LOW);
+    digitalWrite(DirecaoDireito[1], HIGH);
+    digitalWrite(DirecaoDireito[0], LOW);
   } else {
     digitalWrite(DirecaoDireito[0], LOW);
     digitalWrite(DirecaoDireito[1], HIGH);
   }
 
   if (velocidadeEsquerda > 0) {
-    digitalWrite(DirecaoEsquerdo[0], HIGH);
-    digitalWrite(DirecaoEsquerdo[1], LOW);
+    digitalWrite(DirecaoEsquerdo[1], HIGH);
+    digitalWrite(DirecaoEsquerdo[0], LOW);
   } else {
     digitalWrite(DirecaoEsquerdo[0], LOW);
     digitalWrite(DirecaoEsquerdo[1], HIGH);
@@ -49,7 +50,9 @@ void setup() {
   Serial.begin(9600);
   for (int i = 0; i < numSensors; i++) {
     pinMode(sensorPins[i], INPUT);
+ 
   }
+
   for (int i = 0; i < 2; i++) {
     pinMode(DirecaoDireito[i], OUTPUT);
     pinMode(DirecaoEsquerdo[i], OUTPUT);
@@ -65,26 +68,38 @@ void loop() {
 
   for (int i = 0; i < numSensors; i++) {
     sensorValues[i] = analogRead(sensorPins[i]);
+       Serial.print(i);
+    Serial.print(": ");
+    Serial.println(sensorValues[i]);
+    
   }
+  Serial.println();
+  // delay(500);
   // if (readed != sensorValues)
   
-  if((sensorValues[1] > threshold) && (sensorValues[2] > threshold) && sensorValues[3] > threshold){
-    controlarMotores(80, 80);
+  if((sensorValues[0] > threshold) && (sensorValues[1] > threshold) && (sensorValues[2] > threshold) && sensorValues[3] > threshold){
+    controlarMotores(motorSpeed, motorSpeed);
     Serial.println("Frente");
 
   }
- if((sensorValues[1] < threshold) && (sensorValues[2] > threshold) && (sensorValues[3] > threshold)){
-    controlarMotores(-70, 70);
+ if((sensorValues[0] > threshold) && (sensorValues[1] < threshold) && (sensorValues[2] > threshold) && (sensorValues[3] > threshold)){
+    controlarMotores(-giro, giro);
     Serial.println("Direita pouco");
     // delay(100); //Direita
   }
-   if((sensorValues[1] > threshold) && (sensorValues[2] < threshold) && (sensorValues[3] > threshold)){
-    controlarMotores(70, -70);
+  
+  if((sensorValues[0] < threshold) && (sensorValues[1] > threshold) && (sensorValues[2] > threshold) && (sensorValues[3] > threshold)){
+    controlarMotores(-giro*2, giro*2);
+    Serial.println("Direita muito");
+    // delay(100); //Direita
+  }
+   if((sensorValues[0] > threshold) && (sensorValues[1] > threshold) && (sensorValues[2] < threshold) && (sensorValues[3] > threshold)){
+    controlarMotores(giro, -giro);
     Serial.println("Esquerda pouco");
     // delay(100); //Esquerda
   }
   if((sensorValues[3] < threshold) && (sensorValues[1] > threshold) && (sensorValues[2] > threshold)){
-    controlarMotores(90, -90);
+    controlarMotores(giro*2, -giro*2);
     Serial.println("Esquerda Muito");
   }
   
