@@ -1,4 +1,3 @@
-#include <Arduino.h>
 
 enum Estado {
   SEGUIR_LINHA,
@@ -29,16 +28,16 @@ void controlarMotores(int velocidadeDireita, int velocidadeEsquerda) {
   analogWrite(ControleEsquerdo, velocidadeEsquerda);
 
   if (velocidadeDireita > 0) {
-    digitalWrite(DirecaoDireito[1], HIGH);
-    digitalWrite(DirecaoDireito[0], LOW);
+    digitalWrite(DirecaoDireito[0], HIGH);
+    digitalWrite(DirecaoDireito[1], LOW);
   } else {
     digitalWrite(DirecaoDireito[0], LOW);
     digitalWrite(DirecaoDireito[1], HIGH);
   }
 
   if (velocidadeEsquerda > 0) {
-    digitalWrite(DirecaoEsquerdo[1], HIGH);
-    digitalWrite(DirecaoEsquerdo[0], LOW);
+    digitalWrite(DirecaoEsquerdo[0], HIGH);
+    digitalWrite(DirecaoEsquerdo[1], LOW);
   } else {
     digitalWrite(DirecaoEsquerdo[0], LOW);
     digitalWrite(DirecaoEsquerdo[1], HIGH);
